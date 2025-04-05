@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+{% block title %} Verify Bingo Claim{% endblock title %}
+{% block body %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Card Viewer</title>
+    <style>
+        /* CSS Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 200000;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .input-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 120px;
+        }
+        
+        button {
+            background-color: #6a11cb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #4d0b9a;
+        }
+        
+        #loading {
+            display: none;
+            margin-left: 10px;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #6a11cb;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        .card-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .bingo-card {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        .bingo-card th {
+            background-color: #6a11cb;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .bingo-card td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            position: relative;
+            background-color: white;
+            transition: all 0.3s;
+        }
+        
+        .bingo-card td.marked {
+            background-color: #aaffaa;
+            font-weight: bold;
+        }
+        
+        .bingo-card td.marked::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            color: #2e7d32;
+            font-size: 14px;
+        }
+        
+        .bingo-card td.free {
+            background-color: #ffeb3b;
+            font-weight: bold;
+            font-style: italic;
+        }
+        
+        .marked-numbers {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .marked-numbers h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bingo Card Viewer</h1>
+    
+    <div class="input-container">
+        <label for="serial_number">Enter Card Serial Number:</label>
+        <input type="number" id="serial_number" min="100" max="999" required placeholder="e.g., 123">
+        <button id="fetchBtn">Fetch Card</button>
+        <span id="loading" class="spinner"></span>
+    </div>
+    <div id="error" class="error"></div>
+    <div id="result"></div>
+
+    <script>
+        // JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            const fetchBtn = document.getElementById('fetchBtn');
+            const serialInput = document.getElementById('serial_number');
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+            const loading = document.getElementById('loading');
+            
+            fetchBtn.addEventListener('click', fetchBingoCard);
+            
+            // Also allow Enter key to submit
+            serialInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    fetchBingoCard();
+                }
+            });
+            
+            function fetchBingoCard() {
+                const serialNumber = serialInput.value.trim();
+                
+                // Clear previous results
+                resultDiv.innerHTML = '';
+                errorDiv.textContent = '';
+                
+                // Validate input
+                if (!/^\d{3}$/.test(serialNumber)) {
+                    errorDiv.textContent = 'Please enter a valid 3-digit number (100-999)';
+                    return;
+                }
+                
+                // Show loading
+                loading.style.display = 'inline-block';
+                fetchBtn.disabled = true;
+                
+                // Simulate API call (replace with actual fetch to your backend)
+               
+                
+                // In your actual implementation, replace the setTimeout with:
+                
+                fetch(`/api/bingo-cards/${serialNumber}/`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Card not found');
+                        }
+                        return response.json();
+                    })
+                    .then(card => {
+                        displayBingoCard(card);
+                    })
+                    .catch(error => {
+                        errorDiv.textContent = error.message;
+                    })
+                    .finally(() => {
+                        loading.style.display = 'none';
+                        fetchBtn.disabled = false;
+                    });
+                
+            }
+            
+            function displayBingoCard(card) {
+                // Create card container
+                const cardContainer = document.createElement('div');
+                cardContainer.className = 'card-container';
+                
+                // Add header
+                const header = document.createElement('h2');
+                header.textContent = `Bingo Card #${card.serial_number}`;
+                cardContainer.appendChild(header);
+                
+                // Add player name if exists
+                if (card.player_name) {
+                    const playerName = document.createElement('p');
+                    playerName.textContent = `Player: ${card.player_name}`;
+                    cardContainer.appendChild(playerName);
+                }
+                
+                // Create Bingo table
+                const table = document.createElement('table');
+                table.className = 'bingo-card';
+                
+                // Create header row
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                ['B', 'I', 'N', 'G', 'O'].forEach(letter => {
+                    const th = document.createElement('th');
+                    th.textContent = letter;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+                
+                // Create table body with numbers
+                const tbody = document.createElement('tbody');
+                
+                // Create 5 rows (standard Bingo card)
+                for (let row = 0; row < 5; row++) {
+                    const tr = document.createElement('tr');
+                    
+                    // Create cells for each column (B, I, N, G, O)
+                    ['B', 'I', 'N', 'G', 'O'].forEach(letter => {
+                        const td = document.createElement('td');
+                        const number = card.numbers[letter][row];
+                        
+                        // Check if this number is marked
+                        const isMarked = card.marked_numbers.includes(number);
+                        
+                        // Special handling for FREE space
+                        if (letter === 'N' && row === 2) {
+                            td.textContent = 'FREE';
+                            td.className = 'free';
+                        } else {
+                            td.textContent = number;
+                            if (isMarked) {
+                                td.classList.add('marked');
+                            }
+                        }
+                        
+                        tr.appendChild(td);
+                    });
+                    
+                    tbody.appendChild(tr);
+                }
+                
+                table.appendChild(tbody);
+                cardContainer.appendChild(table);
+                
+                // Add marked numbers section
+                if (card.marked_numbers.length > 0) {
+                    const markedSection = document.createElement('div');
+                    markedSection.className = 'marked-numbers';
+                    
+                    const markedHeader = document.createElement('h3');
+                    markedHeader.textContent = 'Marked Numbers:';
+                    markedSection.appendChild(markedHeader);
+                    
+                    const markedList = document.createElement('p');
+                    markedList.textContent = card.marked_numbers.join(', ');
+                    markedSection.appendChild(markedList);
+                    
+                    cardContainer.appendChild(markedSection);
+                }
+                
+                resultDiv.appendChild(cardContainer);
+            }
+        });
+    </script>
+</body>
+</html>
+
+{% endblock body %}

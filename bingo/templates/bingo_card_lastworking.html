@@ -1,0 +1,49 @@
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Card</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bingo Card (Serial: {{ card.serial_number }})</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>B</th>
+                <th>I</th>
+                <th>N</th>
+                <th>G</th>
+                <th>O</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in "01234" %}
+            <tr>
+                <td>{{ card.numbers.B|get_item:forloop.counter0 }}</td>
+                <td>{{ card.numbers.I|get_item:forloop.counter0 }}</td>
+                <td>{{ card.numbers.N|get_item:forloop.counter0 }}</td>
+                <td>{{ card.numbers.G|get_item:forloop.counter0 }}</td>
+                <td>{{ card.numbers.O|get_item:forloop.counter0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% block title %}Verify Bingo Claim{% endblock title %}
+{% block body %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Bingo Claim</title>
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --success-color: #4CAF50;
+            --error-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .verify-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        }
+        
+        .btn-verify {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-verify:hover {
+            background: linear-gradient(to right, #5a0db3, #1a65e0);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-verify:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .instructions {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f0f8ff;
+            border-left: 4px solid var(--secondary-color);
+            border-radius: 4px;
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .verify-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <h1>Verify Bingo Claim</h1>
+        
+        <form id="verifyForm" method="POST" action="{% url 'verify_bingo_claim' %}"> 
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="serial_number">Bingo Card Serial Number</label>
+                <input type="text" id="serial_number" name="serial_number" required 
+                       placeholder="Enter the 3-digit serial number"
+                       pattern="[0-9]{3}" title="Please enter a 3-digit number">
+                <div id="serialError" class="error-message"></div>
+            </div>
+            <button type="submit" class="btn-verify" id="verifyBtn">
+                <span id="btnText">Verify Card</span>
+                <span id="btnSpinner" class="loading-spinner" style="display: none;"></span>
+            </button>
+        </form>
+        
+        <div class="instructions">
+            <p><strong>How to verify:</strong></p>
+            <ol>
+                <li>Enter the 3-digit serial number from the bingo card</li>
+                <li>Click "Verify Card" to view the card and marked numbers</li>
+                <li>Compare with the called numbers to confirm the bingo</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const verifyForm = document.getElementById('verifyForm');
+            const serialInput = document.getElementById('serial_number');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const serialError = document.getElementById('serialError');
+        
+            // Validate serial number format
+            serialInput.addEventListener('input', function() {
+                const serialNumber = this.value.trim();
+                if (/^\d{3}$/.test(serialNumber)) {
+                    this.setCustomValidity('');
+                    serialError.style.display = 'none';
+                } else {
+                    this.setCustomValidity('Please enter a valid 3-digit number');
+                }
+            });
+            
+            // Handle form submission
+            verifyForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const serialNumber = serialInput.value.trim();
+                
+                // Client-side validation
+                if (!/^\d{3}$/.test(serialNumber)) {
+                    serialError.textContent = 'Please enter a valid 3-digit number';
+                    serialError.style.display = 'block';
+                    return;
+                }
+                
+                const serialNumberInt = parseInt(serialNumber);
+                if (isNaN(serialNumberInt) || serialNumberInt < 100 || serialNumberInt > 999) {
+                    serialError.textContent = 'Serial number must be between 100-999';
+                    serialError.style.display = 'block';
+                    return;
+                }
+                
+                // Show loading state
+                verifyBtn.disabled = true;
+                btnText.textContent = 'Verifying...';
+                btnSpinner.style.display = 'inline-block';
+                serialError.style.display = 'none';
+                
+                // Submit form via AJAX
+                fetch(verifyForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `serial_number=${serialNumberInt}`
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    serialError.textContent = error.message || 'An error occurred. Please try again.';
+                    serialError.style.display = 'block';
+                })
+                .finally(() => {
+                    verifyBtn.disabled = false;
+                    btnText.textContent = 'Verify Card';
+                    btnSpinner.style.display = 'none';
+                });
+            });
+            
+            // Clear error when typing
+            serialInput.addEventListener('keydown', function() {
+                if (serialError.style.display !== 'none') {
+                    serialError.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock body %}

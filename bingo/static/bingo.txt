@@ -1,0 +1,5 @@
+Problem Statement:
+Senior Center Without Walls Saskatchewan is a nonprofit program looking to develop a bingo game for senior citizens that can be played from home using dial pad phones without any visuals.
+
+
+Target Community: Senior citizens of Saskatchewan, particularly those with limited mobility.

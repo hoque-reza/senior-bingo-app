@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %} Create Bingo Card{% endblock title %}
+{% block body %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Card Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .form-label {
+            font-weight: 600;
+        }
+        .form-control {
+            margin-bottom: 15px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            border: none;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2575fc, #6a11cb);
+        }
+        .card-url {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+        .card-url:hover {
+            transform: translateY(-5px);
+        }
+        .card-url a {
+            color: #2575fc;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .card-url a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Bingo Card</h1>
+
+    <div class="form-container">
+        <form id="bingoForm">
+            <div class="mb-3">
+                <label for="numCards" class="form-label">Number of Cards:</label>
+                <input type="number" class="form-control" id="numCards" name="numCards" min="1" required>
+            </div>
+            <div class="mb-3">
+                <label for="expiryDate" class="form-label">Expiry Date:</label>
+                <input type="date" class="form-control" id="expiryDate" name="expiryDate" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Cards</button>
+        </form>
+    </div>
+
+    <div id="cardsContainer" class="mt-4"></div>
+
+    <script>
+        document.getElementById('bingoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const numCards = document.getElementById('numCards').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/generate-bingo-cards/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        num_cards: numCards,
+                        expiry_date: expiryDate,
+                    }),
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    displayCardUrls(data.cards);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error generating cards:', error);
+                alert('Failed to generate cards');
+            }
+        });
+
+        function displayCardUrls(cards) {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = ''; // Clear previous results
+        
+            cards.forEach((card, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card-url';
+        
+                // Create a clickable link
+                const link = document.createElement('a');
+                link.href = card.card_url;
+                link.textContent = `Card ${index + 1}: ${card.card_url}`;
+                link.target = '_blank';  // Open in a new tab
+                cardDiv.appendChild(link);
+        
+                container.appendChild(cardDiv);
+            });
+        }
+    </script>
+</body>
+</html>
+{% endblock body %}

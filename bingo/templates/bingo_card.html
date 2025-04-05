@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %} Bigo Card{% endblock title %}
+{% block body %}
+
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Card</title>
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        th {
+            background-color: #6a11cb;
+            color: #fff;
+            font-weight: 600;
+        }
+        td {
+            background-color: #f8f9fa;
+        }
+        td:hover {
+            background-color: #e9ecef;
+        }
+        .marked {
+            background-color:rgb(247, 5, 5);
+            animation: markedAnimation 0.5s ease;
+        }
+        @keyframes markedAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bingo Card (Serial: {{ card.serial_number }})</h1>
+        <table class="table-bordered">
+            <thead>
+                <tr>
+                    <th>B</th>
+                    <th>I</th>
+                    <th>N</th>
+                    <th>G</th>
+                    <th>O</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in "01234" %}
+                <tr>
+                    <td data-number="{{ card.numbers.B|get_item:forloop.counter0 }}" {% if card.numbers.B|get_item:forloop.counter0 in card.marked_numbers %}class="marked"{% endif %}>
+                        {{ card.numbers.B|get_item:forloop.counter0 }}
+                    </td>
+                    <td data-number="{{ card.numbers.I|get_item:forloop.counter0 }}" {% if card.numbers.I|get_item:forloop.counter0 in card.marked_numbers %}class="marked"{% endif %}>
+                        {{ card.numbers.I|get_item:forloop.counter0 }}
+                    </td>
+                    <td data-number="{{ card.numbers.N|get_item:forloop.counter0 }}" {% if card.numbers.N|get_item:forloop.counter0 in card.marked_numbers %}class="marked"{% endif %}>
+                        {{ card.numbers.N|get_item:forloop.counter0 }}
+                    </td>
+                    <td data-number="{{ card.numbers.G|get_item:forloop.counter0 }}" {% if card.numbers.G|get_item:forloop.counter0 in card.marked_numbers %}class="marked"{% endif %}>
+                        {{ card.numbers.G|get_item:forloop.counter0 }}
+                    </td>
+                    <td data-number="{{ card.numbers.O|get_item:forloop.counter0 }}" {% if card.numbers.O|get_item:forloop.counter0 in card.marked_numbers %}class="marked"{% endif %}>
+                        {{ card.numbers.O|get_item:forloop.counter0 }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Function to mark a number
+        async function markNumber(serialNumber, number) {
+            try {
+                const response = await fetch(`/api/mark_number/${serialNumber}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ number: number }),
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    // Highlight the marked number
+                    const cells = document.querySelectorAll(`td[data-number="${number}"]`);
+                    cells.forEach(cell => cell.classList.add('marked'));
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error marking number:', error);
+                alert('Failed to mark number');
+            }
+        }
+
+        // Add click event listeners to the table cells
+        document.querySelectorAll('td').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const serialNumber = "{{ card.serial_number }}";
+                const number = cell.getAttribute('data-number');
+                if (number && !cell.classList.contains('marked')) {
+                    markNumber(serialNumber, number);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock body %}

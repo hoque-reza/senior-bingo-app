@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %} Bigo Caller{% endblock title %}
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Caller</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn-call {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        .btn-call:hover {
+            background: linear-gradient(135deg, #2575fc, #6a11cb);
+        }
+        .btn-reset {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .btn-reset:hover {
+            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+        }
+        #calledNumbersDisplay {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        #calledNumbersList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #calledNumbersList li {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: transform 0.3s ease;
+        }
+        #calledNumbersList li:hover {
+            transform: translateX(10px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Bingo Caller</h2>
+        <div class="text-center">
+            <button id="callNumberBtn" class="btn btn-call"><i class="fas fa-bullhorn"></i> Call Number</button>
+            <button id="resetCalledNumbersBtn" class="btn btn-reset"><i class="fas fa-sync-alt"></i> Reset Called Numbers</button>
+        </div>
+        <div id="calledNumbersDisplay">
+            <h3>Called Numbers:</h3>
+            <ul id="calledNumbersList"></ul>
+        </div>
+    </div>
+    <script>
+        
+        document.getElementById('callNumberBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/call-number/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    displayCalledNumber(data.called_number);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error calling number:', error);
+                alert('Failed to call number');
+            }
+        });
+
+        document.getElementById('resetCalledNumbersBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/reset-called-numbers/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    resetCalledNumbersDisplay();
+                    alert(data.message);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error resetting called numbers:', error);
+                alert('Failed to reset called numbers');
+            }
+        });
+
+        function displayCalledNumber(number) {
+            const calledNumbersList = document.getElementById('calledNumbersList');
+            const listItem = document.createElement('li');
+            listItem.textContent = number;
+            calledNumbersList.appendChild(listItem);
+        }
+
+        function resetCalledNumbersDisplay() {
+            const calledNumbersList = document.getElementById('calledNumbersList');
+            calledNumbersList.innerHTML = ''; // Clear the list
+        }
+    </script>
+</body>
+</html>
+{% endblock body %}

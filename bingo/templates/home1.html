@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock title %}
+
+{% block body %}
+<div class="landing-container">
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="title-animate">Welcome to <span>The Bingo Game</span> for Senior Citizens!</h1>
+            <p class="subtitle-animate">Fun, friendship, and community connection!</p>
+            
+            
+        </div>
+        
+        <div class="hero-image">
+            <div class="bingo-ball-animation">
+                <div class="ball b">B</div>
+                <div class="ball i">I</div>
+                <div class="ball n">N</div>
+                <div class="ball g">G</div>
+                <div class="ball o">O</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="features-section">
+        <div class="feature-card slide-up">
+            <div class="feature-icon">🎯</div>
+            <h3>Easy to Play</h3>
+            <p>Simple rules designed specifically for seniors with clear instructions.</p>
+        </div>
+        
+        <div class="feature-card slide-up" style="animation-delay: 0.2s">
+            <div class="feature-icon">👥</div>
+            <h3>Social Fun</h3>
+            <p>Connect with friends and make new ones in our community games.</p>
+        </div>
+        
+        <div class="feature-card slide-up" style="animation-delay: 0.4s">
+            <div class="feature-icon">❤️</div>
+            <h3>Friendly Community</h3>
+            <p>Join our welcoming community of players who share your interests.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary: #6a11cb;
+        --secondary: #2575fc;
+        --accent: #ff8a00;
+        --light: #f8f9fa;
+        --dark: #343a40;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        color: var(--dark);
+    }
+    
+    .landing-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .hero-section {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        padding: 60px 0;
+    }
+    
+    .hero-content {
+        flex: 1;
+        min-width: 300px;
+        padding: 20px;
+    }
+    
+    .hero-image {
+        flex: 1;
+        min-width: 300px;
+        position: relative;
+        height: 300px;
+    }
+    
+    h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+    
+    h1 span {
+        color: var(--primary);
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    p.subtitle-animate {
+        font-size: 1.4rem;
+        color: #666;
+        margin-bottom: 30px;
+    }
+    
+    .cta-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .cta-button {
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+    
+    .cta-button.pulse {
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        color: white;
+        box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
+    }
+    
+    .cta-button.secondary {
+        background: white;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+    }
+    
+    .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(106, 17, 203, 0.3);
+    }
+    
+    .bingo-ball-animation {
+        position: relative;
+        height: 100%;
+        width: 100%;
+    }
+    
+    .ball {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 24px;
+        color: white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        animation: float 4s infinite ease-in-out;
+    }
+    
+    .ball.b {
+        background: #FF5252;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .ball.i {
+        background: #FF9800;
+        top: 60%;
+        left: 20%;
+        animation-delay: 0.5s;
+    }
+    
+    .ball.n {
+        background: #4CAF50;
+        top: 30%;
+        left: 70%;
+        animation-delay: 1s;
+    }
+    
+    .ball.g {
+        background: #2196F3;
+        top: 70%;
+        left: 60%;
+        animation-delay: 1.5s;
+    }
+    
+    .ball.o {
+        background: #9C27B0;
+        top: 50%;
+        left: 40%;
+        animation-delay: 2s;
+    }
+    
+    .features-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin: 60px 0;
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: var(--primary);
+    }
+    
+    .feature-card p {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    /* Animations */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes titleAnimation {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .title-animate {
+        animation: titleAnimation 1s ease forwards;
+    }
+    
+    .subtitle-animate {
+        animation: titleAnimation 1s 0.3s ease forwards;
+        opacity: 0;
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    .slide-up {
+        animation: slideUp 0.8s ease forwards;
+        opacity: 0;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 2rem;
+        }
+        
+        .hero-section {
+            padding: 30px 0;
+            text-align: center;
+        }
+        
+        .cta-buttons {
+            justify-content: center;
+        }
+        
+        .hero-image {
+            height: 200px;
+            margin-top: 40px;
+        }
+    }
+</style>
+{% endblock body %}
